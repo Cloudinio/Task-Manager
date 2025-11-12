@@ -1,11 +1,10 @@
 from django.http import HttpResponse
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from main.models import Task
 
 
 def Hello(request):
     return HttpResponse("Привет, это мое дз :)")
-
 
 class TaskListView(ListView):
     model = Task
@@ -25,3 +24,8 @@ class TaskListView(ListView):
         if category_id:
             qs = qs.filter(category_id=category_id)
         return qs
+    
+class TaskDetailView(DetailView):
+    model = Task
+    template_name = "main/task_detail.html"
+    context_object_name = "task"
