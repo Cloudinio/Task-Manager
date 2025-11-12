@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Список задач</title>
+</head>
+<body>
+    <h1>Мои задачи</h1>
+
+    <ul>
+        {% for task in tasks %}
+            <li>
+                <strong>{{ task.title }}</strong> — {{ task.get_status_display }}
+            </li>
+        {% empty %}
+            <li>Задач пока нет</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
