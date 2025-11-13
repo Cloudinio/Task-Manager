@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Создать задачу</title>
+</head>
+<body>
+
+<a href="{% url 'task-list' %}">← Назад к списку задач</a>
+
+<h1>Создать новую задачу</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Создать</button>
+</form>
+
+</body>
+</html>

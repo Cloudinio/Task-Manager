@@ -27,5 +27,14 @@
     <h3>Описание</h3>
     <p>{{ task.description|linebreaksbr }}</p>
   {% endif %}
+  <a href="{% url 'task-update' task.id %}">
+    <button>Редактировать</button>
+</a>
+  <form method="post" action="{% url 'task-delete' task.id %}" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit" onclick="return confirm('Удалить задачу?');">
+        Удалить
+    </button>
+</form>
 </body>
 </html>

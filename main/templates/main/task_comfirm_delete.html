@@ -1,0 +1,6 @@
+<form method="post">
+  {% csrf_token %}
+  <p>Удалить задачу "{{ object.title }}"?</p>
+  <button type="submit">Да, удалить</button>
+  <a href="{% url 'task-detail' object.id %}">Отмена</a>
+</form>

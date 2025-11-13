@@ -5,8 +5,49 @@
     <title>Список задач</title>
 </head>
 <body>
+    <a href="{% url 'hello' %}">← Назад на главную страницу</a>
     <h1>Мои задачи</h1>
 
+<form method="get">
+    <label>
+        Статус:
+        <select name="status">
+            <option value="">Все</option>
+            {% for value, label in statuses %}
+                <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+            {% endfor %}
+        </select>
+    </label>
+
+    <label>
+        Категория:
+        <select name="category">
+            <option value="">Все</option>
+            {% for category in categories %}
+                <option value="{{ category.id }}" {% if current_category|add:"" == category.id|stringformat:"s" %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </label>
+
+    <label>
+        Дедлайн с:
+        <input type="date" name="deadline_from" value="{{ current_deadline_from }}">
+    </label>
+
+    <label>
+        по:
+        <input type="date" name="deadline_to" value="{{ current_deadline_to }}">
+    </label>
+
+    <button type="submit">Фильтровать</button>
+    <a href="{% url 'task-list' %}">Сбросить</a>
+</form>
+
+<hr>
     <ul>
         {% for task in tasks %}
             <li>
@@ -19,5 +60,25 @@
             <li>Задач пока нет</li>
         {% endfor %}
     </ul>
+
+    <a href="{% url 'task-create' %}">
+    <button>Создать новую задачу</button>
+
+    {% if is_paginated %}
+      <div>
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">← Предыдущая</a>
+        {% endif %}
+
+        <span>
+        Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Следующая →</a>
+        {% endif %}
+      </div>
+    {% endif %}
+</a>
 </body>
 </html>

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Редактирование: {{ task.title }}</title>
+</head>
+<body>
+
+<a href="{% url 'task-detail' task.id %}">← Назад к задаче</a>
+
+<h1>Редактировать задачу</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit">Сохранить изменения</button>
+</form>
+
+
+</body>
+</html>
