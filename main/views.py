@@ -4,6 +4,7 @@ from main.models import Task, Category
 from django.utils.dateparse import parse_date
 from main.forms import TaskForm
 from django.shortcuts import render
+from django.db.models import Q
 
 def Hello(request):
     return render(request, "main/hello.html")
@@ -23,7 +24,10 @@ class TaskListView(ListView):
         category_id = self.request.GET.get("category")
         deadline_from = self.request.GET.get("deadline_from")
         deadline_to = self.request.GET.get("deadline_to")
+        query = self.request.GET.get("query")
 
+        if query:
+            qs = qs.filter(Q(title__icontains=query))
         if status:
             qs = qs.filter(status=status)
         if category_id:
@@ -52,6 +56,7 @@ class TaskListView(ListView):
         context["current_category"] = self.request.GET.get("category", "")
         context["current_deadline_from"] = self.request.GET.get("deadline_from", "")
         context["current_deadline_to"] = self.request.GET.get("deadline_to", "")
+        context["query"] = self.request.GET.get("query", "")
 
         return context
     
