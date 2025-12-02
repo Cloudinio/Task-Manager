@@ -2,14 +2,16 @@ from django.views.generic import ListView, DetailView, DeleteView, UpdateView, C
 from django.urls import reverse_lazy
 from main.models import Task, Category
 from django.utils.dateparse import parse_date
-from main.forms import TaskForm
-from django.shortcuts import render
+from main.forms import TaskForm, RegisterForm
+from django.shortcuts import render, redirect
 from django.db.models import Q
+from django.contrib.auth import login
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 def Hello(request):
     return render(request, "main/hello.html")
 
-class TaskListView(ListView):
+class TaskListView(LoginRequiredMixin, ListView):
     model = Task
     template_name = "main/task_list.html"
     context_object_name = "tasks"
@@ -60,16 +62,16 @@ class TaskListView(ListView):
 
         return context
     
-class TaskDetailView(DetailView):
+class TaskDetailView(LoginRequiredMixin, DetailView):
     model = Task
     template_name = "main/task_detail.html"
     context_object_name = "task"
 
-class TaskDeleteView(DeleteView):
+class TaskDeleteView(LoginRequiredMixin, DeleteView):
     model = Task
     success_url = reverse_lazy("task-list") 
 
-class TaskUpdateView(UpdateView):
+class TaskUpdateView(LoginRequiredMixin, UpdateView):
     model = Task
     form_class = TaskForm
     template_name = 'main/task_update.html'
@@ -78,10 +80,24 @@ class TaskUpdateView(UpdateView):
     def get_success_url(self):
         return reverse_lazy("task-detail", kwargs={"pk": self.object.pk})
     
-class TaskCreateView(CreateView):
+class TaskCreateView(LoginRequiredMixin, CreateView):
     model = Task
     form_class = TaskForm
     template_name = "main/task_create.html"
     
     def get_success_url(self):
         return reverse_lazy("task-list")
+    
+def register(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data["password"])
+            user.save()
+            login(request, user)
+            return redirect("task-list")
+    else:
+        form = RegisterForm()
+
+    return render(request, "main/register.html", {"form": form})

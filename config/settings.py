@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 import dj_database_url
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
@@ -12,6 +11,12 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') if h]
+
+from django.urls import reverse_lazy
+
+LOGIN_URL = reverse_lazy("login")
+LOGIN_REDIRECT_URL = reverse_lazy("task-list")
+#LOGOUT_REDIRECT_URL = reverse_lazy("hello")
 
 DATABASES = {
     'default': dj_database_url.config(
