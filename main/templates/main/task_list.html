@@ -3,87 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <title>Список задач</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .task-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+    </style>
 </head>
 <body>
-    <a href="{% url 'hello' %}">← Назад на главную страницу</a>
-    <h1>Мои задачи</h1>
 
-<form method="get">
-    <label>
-        Поиск:
-        <input type="text" name="query" value="{{ current_query }}">
-    </label>
-    
-    <label>
-        Статус:
-        <select name="status">
-            <option value="">Все</option>
-            {% for value, label in statuses %}
-                <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>
-                    {{ label }}
-                </option>
+<div class="container mt-4">
+    <a href="{% url 'hello' %}" class="btn btn-outline-secondary mb-3">← На главную</a>
+</div>
+
+<div class="task-container">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Мои задачи</h2>
+        <a href="{% url 'task-create' %}" class="btn btn-success">Создать задачу</a>
+    </div>
+
+    <form method="get" class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <label class="form-label">Поиск</label>
+            <input type="text" name="query" value="{{ current_query }}" class="form-control" placeholder="Название или описание">
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Статус</label>
+            <select name="status" class="form-select">
+                <option value="">Все</option>
+                {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Категория</label>
+            <select name="category" class="form-select">
+                <option value="">Все</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}" {% if current_category|add:"" == category.id|stringformat:"s" %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Дедлайн с</label>
+            <input type="date" name="deadline_from" value="{{ current_deadline_from }}" class="form-control">
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">по</label>
+            <input type="date" name="deadline_to" value="{{ current_deadline_to }}" class="form-control">
+        </div>
+
+        <div class="col-12 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Фильтровать</button>
+            <a href="{% url 'task-list' %}" class="btn btn-secondary">Сбросить</a>
+        </div>
+
+    </form>
+
+    <hr>
+
+    {% if tasks %}
+        <ul class="list-group mb-4">
+            {% for task in tasks %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <a href="{% url 'task-detail' task.id %}" class="fw-bold text-decoration-none">
+                            {{ task.title }}
+                        </a>
+                        <div class="text-muted small">{{ task.get_status_display }}</div>
+                    </div>
+
+                    <a href="{% url 'task-detail' task.id %}" class="btn btn-sm btn-outline-primary">
+                        Открыть
+                    </a>
+                </li>
             {% endfor %}
-        </select>
-    </label>
-
-    <label>
-        Категория:
-        <select name="category">
-            <option value="">Все</option>
-            {% for category in categories %}
-                <option value="{{ category.id }}" {% if current_category|add:"" == category.id|stringformat:"s" %}selected{% endif %}>
-                    {{ category.name }}
-                </option>
-            {% endfor %}
-        </select>
-    </label>
-
-    <label>
-        Дедлайн с:
-        <input type="date" name="deadline_from" value="{{ current_deadline_from }}">
-    </label>
-
-    <label>
-        по:
-        <input type="date" name="deadline_to" value="{{ current_deadline_to }}">
-    </label>
-
-    <button type="submit">Фильтровать</button>
-    <a href="{% url 'task-list' %}">Сбросить</a>
-</form>
-
-<hr>
-    <ul>
-        {% for task in tasks %}
-            <li>
-                <a href="{% url 'task-detail' task.id %}">
-                <strong>{{ task.title }}</strong>
-                </a>
-                – {{ task.get_status_display }}
-            </li>
-        {% empty %}
-            <li>Задач пока нет</li>
-        {% endfor %}
-    </ul>
-
-    <a href="{% url 'task-create' %}">
-    <button>Создать новую задачу</button>
+        </ul>
+    {% else %}
+        <p class="text-center text-muted">Задач пока нет</p>
+    {% endif %}
 
     {% if is_paginated %}
-      <div>
-        {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}">← Предыдущая</a>
-        {% endif %}
+      <nav class="d-flex justify-content-center">
+        <ul class="pagination">
 
-        <span>
-        Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
-        </span>
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.previous_page_number }}">←</a>
+            </li>
+          {% endif %}
 
-        {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}">Следующая →</a>
-        {% endif %}
-      </div>
+          <li class="page-item disabled">
+            <a class="page-link">
+              Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+            </a>
+          </li>
+
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}">→</a>
+            </li>
+          {% endif %}
+
+        </ul>
+      </nav>
     {% endif %}
-</a>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
